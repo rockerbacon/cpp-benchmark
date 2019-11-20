@@ -1,3 +1,3 @@
-This is just a template for quickly creating projects using the Assertions C++ Framework
+This project uses the Assertions C++ Framework. For instructions on building, testing, etc, check [the Assertions Wiki](https://github.com/rockerbacon/assertions/wiki).
 
-All documentation on the ideas behind Assertions are available in [THE WIKI](https://github.com/rockerbacon/assertions/wiki).
+Documentation on how to use the framework currently WIP.
