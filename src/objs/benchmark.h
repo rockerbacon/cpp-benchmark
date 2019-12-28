@@ -66,6 +66,10 @@
 	benchmark::observer_list benchmark_observers = {__VA_ARGS__};
 
 #define observe_variable(variable_label, observation_mode)\
+	{\
+		using namespace benchmark;\
+		static_assert(sizeof(benchmark_observers) > 0, "cannot observe variables before registering observers");\
+	}\
 	for (auto o : benchmark_observers) {\
 		o.get().observe_variable(#variable_label, variable_label, observation_mode);\
 	}
@@ -87,3 +91,4 @@ namespace benchmark {
 	// dummy for checking observer registration
 	void registered_observers();
 }
+

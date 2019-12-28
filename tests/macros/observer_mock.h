@@ -36,5 +36,9 @@ class observer_mock : public benchmark::Observer {
 		void notifyBenchmarkEnded() {
 			benchmark_ended_notifications++;
 		}
+
+		std::list<benchmark::ObservableVariable*>& list_variables_being_observed() {
+			return this->variables_to_observe;
+		}
 };
 
