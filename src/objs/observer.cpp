@@ -11,8 +11,8 @@ using namespace benchmark;
 using namespace std;
 
 /* OBSERVER */
-void Observer::observe_variable(observable_variable_interface& observable_variable) {
-	variables_to_observe.emplace_back(observable_variable);
+void Observer::set_variables_to_observe(decltype(Observer::variables_to_observe) variables_to_observe) {
+	this->variables_to_observe = variables_to_observe;
 }
 
 /*TERMINAL OBSERVER*/
@@ -27,7 +27,7 @@ void TerminalObserver::notifyRunBegun (void) {
 
 void TerminalObserver::notifyRunEnded (void) {
 	cout << MOVE_CURSOR_TO_SAVED_POSITION << CLEAR_LINE;
-	for (auto observable_variable : this->variables_to_observe) {
+	for (auto observable_variable : *this->variables_to_observe) {
 		cout << CLEAR_LINE;
 		cout << "\t" << observable_variable.get().get_label() << ": " << observable_variable.get().get_value_as_string() << endl;
 	}
@@ -61,7 +61,7 @@ void TextFileObserver::notifyRunBegun (void) {
 }
 
 void TextFileObserver::notifyRunEnded (void) {
-	for (auto observable_variable : this->variables_to_observe) {
+	for (auto observable_variable : *this->variables_to_observe) {
 		this->outputFile << '\t' << observable_variable.get().get_label() << ": " << observable_variable.get().get_value_as_string() << endl;
 	}
 	this->outputFile << endl;
@@ -82,7 +82,7 @@ TsvFileObserver::~TsvFileObserver (void) {
 }
 
 void TsvFileObserver::notifyBenchmarkBegun(const string& benchmarkTitle, unsigned numberOfRuns) {
-	for (auto observable_variable : this->variables_to_observe) {
+	for (auto observable_variable : *this->variables_to_observe) {
 		this->outputFile << observable_variable.get().get_label() << '\t';
 	}
 	this->outputFile << benchmarkTitle << '\t' << numberOfRuns << " runs";
@@ -94,7 +94,7 @@ void TsvFileObserver::notifyRunBegun(void) {
 }
 
 void TsvFileObserver::notifyRunEnded(void) {
-	for (auto observable_variable : this->variables_to_observe) {
+	for (auto observable_variable : *this->variables_to_observe) {
 		this->outputFile << observable_variable.get().get_value_as_string() << '\t';
 	}
 	this->outputFile << '\n';

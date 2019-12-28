@@ -52,6 +52,12 @@
 					else if (benchmark_state.next_action == BENCHMARK_EVALUATE_RUN) {\
 						benchmark_state.run_duration = std::chrono::high_resolution_clock::now() - benchmark_state.run_begin;\
 						benchmark_state.total_duration += benchmark_state.run_duration;\
+						{\
+							using namespace benchmark;\
+							for (auto& observed_variable : benchmark_variables_to_observe) {\
+								observed_variable.get().update_value();\
+							}\
+						}\
 						for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
 							BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyRunEnded();\
 						}\
@@ -63,7 +69,11 @@
 						BENCHMARK_GENERATE_LABEL(benchmark_block_begin):
 
 #define register_observers(...) \
-	benchmark::observer_list benchmark_observers = {__VA_ARGS__};
+	std::list<std::reference_wrapper<benchmark::observable_variable_interface>> benchmark_variables_to_observe;\
+	benchmark::observer_list benchmark_observers = {__VA_ARGS__};\
+	for (size_t i = 0; i < sizeof(benchmark_observers)/sizeof(std::reference_wrapper<benchmark::Observer>); i++) {\
+		benchmark_observers[i].get().set_variables_to_observe(&benchmark_variables_to_observe);\
+	}
 
 #define BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_type, variable, observable_variable_label) \
 	{\
@@ -71,9 +81,7 @@
 		static_assert(sizeof(benchmark_observers) > 0, "cannot observe variables before registering observers");\
 	}\
 	benchmark::observable_type<decltype(variable)> observable_variable_label(#observable_variable_label, variable);\
-	for (auto o : benchmark_observers) {\
-		o.get().observe_variable(observable_variable_label);\
-	}
+	benchmark_variables_to_observe.emplace_back(observable_variable_label);
 
 
 #define observe(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable, variable, observable_variable_label)
@@ -93,8 +101,9 @@ namespace benchmark {
 		std::chrono::high_resolution_clock::duration run_duration;
 	};
 
-	// dummy for benchmarks without observers
+	// dummies for benchmarks without observers
 	observer_list benchmark_observers = {};
+	std::list<std::reference_wrapper<benchmark::observable_variable_interface>> benchmark_variables_to_observe{};\
 
 	// dummy for checking observer registration
 	void registered_observers();

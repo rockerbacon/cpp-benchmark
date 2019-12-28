@@ -11,14 +11,14 @@
 namespace benchmark {
 	class Observer {
 		protected:
-			std::list<std::reference_wrapper<observable_variable_interface>> variables_to_observe;
+			std::list<std::reference_wrapper<observable_variable_interface>>* variables_to_observe;
 		public:
 			virtual void notifyBenchmarkBegun (const std::string& benchmark_title, unsigned number_of_runs) = 0;
 			virtual void notifyRunBegun (void) = 0;
 			virtual void notifyRunEnded (void) = 0;
 			virtual void notifyBenchmarkEnded (void) = 0;
 
-			void observe_variable(observable_variable_interface &observable_variable);
+			void set_variables_to_observe(decltype(variables_to_observe) variables_to_observe);
 	};
 
 	class TerminalObserver : public Observer {
