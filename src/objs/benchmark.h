@@ -18,7 +18,6 @@
 		using namespace benchmark;\
 		BENCHMARK_GENERATE_LABEL(benchmark_observers_ref) = benchmark_observers;\
 		BENCHMARK_GENERATE_LABEL(benchmark_observers_length) = sizeof(benchmark_observers)/sizeof(std::reference_wrapper<benchmark::Observer>);\
-		std::cerr << BENCHMARK_GENERATE_LABEL(benchmark_observers_length) << std::endl;\
 	}\
 	for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
 		BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyBenchmarkBegun(title, runs);\
