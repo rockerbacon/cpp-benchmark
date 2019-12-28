@@ -4,18 +4,7 @@
 #include "observer_mock.h"
 
 begin_tests {
-	test_suite("when executing benchmarks") {
-		test_case("benchmark should execute the correct number of runs") {
-			unsigned number_of_runs = 10;
-			unsigned runs = 0;
-			benchmark ("test number of runs", number_of_runs) {
-				runs++;
-			}
-			assert(runs, ==, number_of_runs);
-		};
-	}
-
-	test_suite("when observing a single benchmark") {
+	test_suite("when executing a single benchmark") {
 		test_case("benchmark information should be correctly reported to all observers") {
 			observer_mock observer1;
 			observer_mock observer2;
@@ -91,7 +80,7 @@ begin_tests {
 		};
 	};
 
-	test_suite("when observing multilpe benchmarks") {
+	test_suite("when executing multiple benchmarks") {
 		test_case("benchmark information should be correctly reported to all observers") {
 			observer_mock observer1;
 			observer_mock observer2;
