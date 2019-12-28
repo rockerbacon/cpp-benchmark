@@ -3,8 +3,11 @@
 
 #include "observer_mock.h"
 
-bool compare_observable_variables(benchmark::ObservableVariable* a, benchmark::ObservableVariable* b) {
-	return a->get_label() < b->get_label();
+using namespace std;
+using namespace benchmark;
+
+bool compare_observable_variables(const benchmark::observable_variable_interface& a, const benchmark::observable_variable_interface& b) {
+	return a.get_label() < b.get_label();
 }
 
 begin_tests {
@@ -16,15 +19,15 @@ begin_tests {
 			short variable_b = 22;
 
 			register_observers(observer1, observer2);
-			observe_variable(variable_a, benchmark::observation_mode::CURRENT_VALUE);
-			observe_variable(variable_b, benchmark::observation_mode::CURRENT_VALUE);
+			observe(variable_a, variable_a_value);
+			observe(variable_b, variable_b_value);
 
-			std::vector<benchmark::ObservableVariable*> observer1_observation_list {
+			vector<reference_wrapper<observable_variable_interface>> observer1_observation_list {
 				observer1.list_variables_being_observed().begin(),
 				observer1.list_variables_being_observed().end()
 			};
 
-			std::vector<benchmark::ObservableVariable*> observer2_observation_list {
+			vector<reference_wrapper<observable_variable_interface>> observer2_observation_list {
 				observer1.list_variables_being_observed().begin(),
 				observer1.list_variables_being_observed().end()
 			};
@@ -41,11 +44,11 @@ begin_tests {
 			auto observer2_variable_a = observer2_observation_list[0];
 			auto observer2_variable_b = observer2_observation_list[1];
 
-			assert(observer1_variable_a->get_label(), ==, "variable_a");
-			assert(observer1_variable_b->get_label(), ==, "variable_b");
+			assert(observer1_variable_a.get().get_label(), ==, "variable_a_value");
+			assert(observer1_variable_b.get().get_label(), ==, "variable_b_value");
 
-			assert(observer2_variable_a->get_label(), ==, "variable_a");
-			assert(observer2_variable_b->get_label(), ==, "variable_b");
+			assert(observer2_variable_a.get().get_label(), ==, "variable_a_value");
+			assert(observer2_variable_b.get().get_label(), ==, "variable_b_value");
 		};
 
 		test_case("observers should add variables with average observation mode") {
@@ -54,16 +57,13 @@ begin_tests {
 			int variable_a = 123;
 
 			register_observers(observer);
-			observe_variable(
-				variable_a,
-				benchmark::observation_mode::AVERAGE_VALUE
-			);
+			observe_average(variable_a, variable_a_average);
 
 			assert(observer.list_variables_being_observed().size(), ==, 1);
 
 			auto observer_variable_a = observer.list_variables_being_observed().front();
 
-			assert(observer_variable_a->get_label(), ==, "variable_a (avg)");
+			assert(observer_variable_a.get().get_label(), ==, "variable_a_average");
 		};
 
 		test_case("observers should add variables with minimum observation mode") {
@@ -72,16 +72,13 @@ begin_tests {
 			int variable_a = 123;
 
 			register_observers(observer);
-			observe_variable(
-				variable_a,
-				benchmark::observation_mode::MINIMUM_VALUE
-			);
+			observe_minimum(variable_a, variable_a_minimum);
 
 			assert(observer.list_variables_being_observed().size(), ==, 1);
 
 			auto observer_variable_a = observer.list_variables_being_observed().front();
 
-			assert(observer_variable_a->get_label(), ==, "variable_a (min)");
+			assert(observer_variable_a.get().get_label(), ==, "variable_a_minimum");
 		};
 
 		test_case("observers should add variables with maximum observation mode") {
@@ -90,44 +87,24 @@ begin_tests {
 			int variable_a = 123;
 
 			register_observers(observer);
-			observe_variable(
-				variable_a,
-				benchmark::observation_mode::MAXIMUM_VALUE
-			);
+			observe_maximum(variable_a, variable_a_maximum);
 
 			assert(observer.list_variables_being_observed().size(), ==, 1);
 
 			auto observer_variable_a = observer.list_variables_being_observed().front();
 
-			assert(observer_variable_a->get_label(), ==, "variable_a (max)");
+			assert(observer_variable_a.get().get_label(), ==, "variable_a_maximum");
 		};
 
-		test_case("observers should add variables with multiple observation modes") {
+		test_case("observed values should be accessible") {
 			observer_mock observer;
 
 			int variable_a = 123;
 
 			register_observers(observer);
-			observe_variable(
-				variable_a,
-				benchmark::observation_mode::AVERAGE_VALUE
-			|	benchmark::observation_mode::MINIMUM_VALUE
-			);
+			observe(variable_a, variable_being_observed);
 
-			std::vector<benchmark::ObservableVariable*> observation_list {
-				observer.list_variables_being_observed().begin(),
-				observer.list_variables_being_observed().end()
-			};
-
-			assert(observation_list.size(), ==, 2);
-
-			sort(observation_list.begin(), observation_list.end(), compare_observable_variables);
-
-			auto observer_variable_a_avg = observation_list[0];
-			auto observer_variable_a_min = observation_list[1];
-
-			assert(observer_variable_a_avg->get_label(), ==, "variable_a (avg)");
-			assert(observer_variable_a_min->get_label(), ==, "variable_a (min)");
+			assert(variable_being_observed.get_value(), ==, variable_a);
 		};
 	}
 } end_tests;

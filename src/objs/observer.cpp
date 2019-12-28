@@ -10,10 +10,9 @@
 using namespace benchmark;
 using namespace std;
 
-Observer::~Observer (void) {
-	for (auto observableVariable : this->variables_to_observe) {
-		delete observableVariable;
-	}
+/* OBSERVER */
+void Observer::observe_variable(observable_variable_interface& observable_variable) {
+	variables_to_observe.emplace_back(observable_variable);
 }
 
 /*TERMINAL OBSERVER*/
@@ -30,7 +29,7 @@ void TerminalObserver::notifyRunEnded (void) {
 	cout << MOVE_CURSOR_TO_SAVED_POSITION << CLEAR_LINE;
 	for (auto observable_variable : this->variables_to_observe) {
 		cout << CLEAR_LINE;
-		cout << "\t" << observable_variable->get_label() << ": " << observable_variable->get_value() << endl;
+		cout << "\t" << observable_variable.get().get_label() << ": " << observable_variable.get().get_value_as_string() << endl;
 	}
 	cout << endl;
 }
@@ -63,7 +62,7 @@ void TextFileObserver::notifyRunBegun (void) {
 
 void TextFileObserver::notifyRunEnded (void) {
 	for (auto observable_variable : this->variables_to_observe) {
-		this->outputFile << '\t' << observable_variable->get_label() << ": " << observable_variable->get_value() << endl;
+		this->outputFile << '\t' << observable_variable.get().get_label() << ": " << observable_variable.get().get_value_as_string() << endl;
 	}
 	this->outputFile << endl;
 }
@@ -84,7 +83,7 @@ TsvFileObserver::~TsvFileObserver (void) {
 
 void TsvFileObserver::notifyBenchmarkBegun(const string& benchmarkTitle, unsigned numberOfRuns) {
 	for (auto observable_variable : this->variables_to_observe) {
-		this->outputFile << observable_variable->get_label() << '\t';
+		this->outputFile << observable_variable.get().get_label() << '\t';
 	}
 	this->outputFile << benchmarkTitle << '\t' << numberOfRuns << " runs";
 	this->outputFile << '\n';
@@ -96,7 +95,7 @@ void TsvFileObserver::notifyRunBegun(void) {
 
 void TsvFileObserver::notifyRunEnded(void) {
 	for (auto observable_variable : this->variables_to_observe) {
-		this->outputFile << observable_variable->get_value() << '\t';
+		this->outputFile << observable_variable.get().get_value_as_string() << '\t';
 	}
 	this->outputFile << '\n';
 }

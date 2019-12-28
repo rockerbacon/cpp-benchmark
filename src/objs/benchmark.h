@@ -65,14 +65,22 @@
 #define register_observers(...) \
 	benchmark::observer_list benchmark_observers = {__VA_ARGS__};
 
-#define observe_variable(variable_label, observation_mode)\
+#define BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_type, variable, observable_variable_label) \
 	{\
 		using namespace benchmark;\
 		static_assert(sizeof(benchmark_observers) > 0, "cannot observe variables before registering observers");\
 	}\
+	benchmark::observable_type<decltype(variable)> observable_variable_label(#observable_variable_label, variable);\
 	for (auto o : benchmark_observers) {\
-		o.get().observe_variable(#variable_label, variable_label, observation_mode);\
+		o.get().observe_variable(observable_variable_label);\
 	}
+
+
+#define observe(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable, variable, observable_variable_label)
+#define observe_average(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable_average, variable, observable_variable_label)
+#define observe_minimum(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable_minimum, variable, observable_variable_label)
+#define observe_maximum(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable_maximum, variable, observable_variable_label)
+
 
 namespace benchmark {
 	typedef std::reference_wrapper<Observer> observer_list[];
