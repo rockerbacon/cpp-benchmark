@@ -15,7 +15,7 @@ begin_tests {
 		};
 	}
 
-	test_suite("when observing variables in a single benchmark") {
+	test_suite("when observing a single benchmark") {
 		test_case("benchmark information should be correctly reported to all observers") {
 			observer_mock observer1;
 			observer_mock observer2;
@@ -23,7 +23,8 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.benchmark_title_reported, ==, benchmark_title);
 			assert(observer2.benchmark_title_reported, ==, benchmark_title);
@@ -39,7 +40,8 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.benchmark_begun_notifications, ==, 1);
 			assert(observer2.benchmark_begun_notifications, ==, 1);
@@ -52,7 +54,8 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.benchmark_ended_notifications, ==, 1);
 			assert(observer2.benchmark_ended_notifications, ==, 1);
@@ -66,7 +69,8 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.run_begun_notifications, ==, number_of_runs);
 			assert(observer2.run_begun_notifications, ==, number_of_runs);
@@ -79,14 +83,15 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.run_ended_notifications, ==, number_of_runs);
 			assert(observer2.run_ended_notifications, ==, number_of_runs);
 		};
 	};
 
-	test_suite("when observing variables in multilpe benchmarks") {
+	test_suite("when observing multilpe benchmarks") {
 		test_case("benchmark information should be correctly reported to all observers") {
 			observer_mock observer1;
 			observer_mock observer2;
@@ -96,7 +101,8 @@ begin_tests {
 			std::string benchmark2_title("test benchmark 2 information");
 			unsigned benchmark2_number_of_runs = 5;
 
-			benchmark(benchmark1_title, benchmark1_number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark1_title, benchmark1_number_of_runs) {}
 
 			assert(observer1.benchmark_title_reported, ==, benchmark1_title);
 			assert(observer2.benchmark_title_reported, ==, benchmark1_title);
@@ -104,7 +110,7 @@ begin_tests {
 			assert(observer1.number_of_runs_reported, ==, benchmark1_number_of_runs);
 			assert(observer2.number_of_runs_reported, ==, benchmark1_number_of_runs);
 
-			benchmark(benchmark2_title, benchmark2_number_of_runs, observer1, observer2) {}
+			benchmark(benchmark2_title, benchmark2_number_of_runs) {}
 
 			assert(observer1.benchmark_title_reported, ==, benchmark2_title);
 			assert(observer2.benchmark_title_reported, ==, benchmark2_title);
@@ -120,8 +126,10 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+
+			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.benchmark_begun_notifications, ==, 2);
 			assert(observer2.benchmark_begun_notifications, ==, 2);
@@ -134,13 +142,13 @@ begin_tests {
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
-			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs) {}
 
 			assert(observer1.benchmark_ended_notifications, ==, 2);
 			assert(observer2.benchmark_ended_notifications, ==, 2);
 		};
-
 
 		test_case("benchmark run begin should be correctly reported to all observers") {
 			observer_mock observer1;
@@ -150,8 +158,9 @@ begin_tests {
 			unsigned benchmark1_number_of_runs = 3;
 			unsigned benchmark2_number_of_runs = 4;
 
-			benchmark(benchmark_title, benchmark1_number_of_runs, observer1, observer2) {}
-			benchmark(benchmark_title, benchmark2_number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, benchmark1_number_of_runs) {}
+			benchmark(benchmark_title, benchmark2_number_of_runs) {}
 
 			assert(observer1.run_begun_notifications, ==, benchmark1_number_of_runs+benchmark2_number_of_runs);
 			assert(observer2.run_begun_notifications, ==, benchmark1_number_of_runs+benchmark2_number_of_runs);
@@ -165,8 +174,9 @@ begin_tests {
 			unsigned benchmark1_number_of_runs = 3;
 			unsigned benchmark2_number_of_runs = 4;
 
-			benchmark(benchmark_title, benchmark1_number_of_runs, observer1, observer2) {}
-			benchmark(benchmark_title, benchmark2_number_of_runs, observer1, observer2) {}
+			register_observers(observer1, observer2);
+			benchmark(benchmark_title, benchmark1_number_of_runs) {}
+			benchmark(benchmark_title, benchmark2_number_of_runs) {}
 
 			assert(observer1.run_ended_notifications, ==, benchmark1_number_of_runs+benchmark2_number_of_runs);
 			assert(observer2.run_ended_notifications, ==, benchmark1_number_of_runs+benchmark2_number_of_runs);
