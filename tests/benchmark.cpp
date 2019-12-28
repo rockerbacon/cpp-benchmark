@@ -20,13 +20,10 @@ begin_tests {
 			observer_mock observer1;
 			observer_mock observer2;
 
-			register_observer(&observer1);
-			register_observer(&observer2);
-
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
 
 			assert(observer1.benchmark_title_reported, ==, benchmark_title);
 			assert(observer2.benchmark_title_reported, ==, benchmark_title);
@@ -39,13 +36,10 @@ begin_tests {
 			observer_mock observer1;
 			observer_mock observer2;
 
-			register_observer(&observer1);
-			register_observer(&observer2);
-
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
 
 			assert(observer1.benchmark_begun_notifications, ==, 1);
 			assert(observer2.benchmark_begun_notifications, ==, 1);
@@ -55,13 +49,10 @@ begin_tests {
 			observer_mock observer1;
 			observer_mock observer2;
 
-			register_observer(&observer1);
-			register_observer(&observer2);
-
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
 
 			assert(observer1.benchmark_ended_notifications, ==, 1);
 			assert(observer2.benchmark_ended_notifications, ==, 1);
@@ -72,13 +63,10 @@ begin_tests {
 			observer_mock observer1;
 			observer_mock observer2;
 
-			register_observer(&observer1);
-			register_observer(&observer2);
-
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
 
 			assert(observer1.run_begun_notifications, ==, number_of_runs);
 			assert(observer2.run_begun_notifications, ==, number_of_runs);
@@ -88,13 +76,10 @@ begin_tests {
 			observer_mock observer1;
 			observer_mock observer2;
 
-			register_observer(&observer1);
-			register_observer(&observer2);
-
 			std::string benchmark_title("test run begun");
 			unsigned number_of_runs = 3;
 
-			benchmark(benchmark_title, number_of_runs) {}
+			benchmark(benchmark_title, number_of_runs, observer1, observer2) {}
 
 			assert(observer1.run_ended_notifications, ==, number_of_runs);
 			assert(observer2.run_ended_notifications, ==, number_of_runs);
