@@ -1,6 +1,5 @@
 #pragma once
 
-#include <chrono>
 #include <functional>
 #include "observer.h"
 
@@ -33,14 +32,10 @@
 			BENCHMARK_GENERATE_LABEL(benchmark_begin_execution): \
 				for(benchmark::benchmark_state benchmark_state {\
 					0,\
-					std::chrono::high_resolution_clock::duration(0),\
-					BENCHMARK_EXECUTE_RUN,\
-					std::chrono::high_resolution_clock::time_point(),\
-					std::chrono::high_resolution_clock::duration()\
+					BENCHMARK_EXECUTE_RUN\
 				}; ; )\
 \
 					if(benchmark_state.next_action == BENCHMARK_EXECUTE_RUN) {\
-						benchmark_state.run_begin = std::chrono::high_resolution_clock::now();\
 						for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
 							BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyRunBegun();\
 						}\
@@ -49,8 +44,6 @@
 					}\
 \
 					else if (benchmark_state.next_action == BENCHMARK_EVALUATE_RUN) {\
-						benchmark_state.run_duration = std::chrono::high_resolution_clock::now() - benchmark_state.run_begin;\
-						benchmark_state.total_duration += benchmark_state.run_duration;\
 						{\
 							using namespace benchmark;\
 							for (auto& observed_variable : benchmark_variables_to_observe) {\
@@ -94,10 +87,7 @@ namespace benchmark {
 
 	struct benchmark_state {
 		unsigned current_run;
-		std::chrono::high_resolution_clock::duration total_duration;
 		unsigned next_action;
-		std::chrono::high_resolution_clock::time_point run_begin;
-		std::chrono::high_resolution_clock::duration run_duration;
 	};
 
 	// dummies for benchmarks without observers
