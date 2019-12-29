@@ -1,46 +1,100 @@
 #pragma once
 
-#include <list>
+#include <functional>
 #include "observer.h"
-#include <chrono>
+
+#define BENCHMARK_GENERATE_LABEL_PASTE_EXPAND(label, line) label ## _ ## line
+#define BENCHMARK_GENERATE_LABEL_PASTE(label, line) BENCHMARK_GENERATE_LABEL_PASTE_EXPAND(label, line)
+#define BENCHMARK_GENERATE_LABEL(label) BENCHMARK_GENERATE_LABEL_PASTE(label, __LINE__)
+
+#define BENCHMARK_EXECUTE_RUN 0
+#define BENCHMARK_EVALUATE_RUN 1
 
 #define benchmark(title, runs) \
-	for (auto o : benchmark::observers) {\
-		o->notifyBenchmarkBegun(title, runs);\
+	std::reference_wrapper<benchmark::Observer>* BENCHMARK_GENERATE_LABEL(benchmark_observers_ref);\
+	size_t BENCHMARK_GENERATE_LABEL(benchmark_observers_length);\
+	{\
+		using namespace benchmark;\
+		BENCHMARK_GENERATE_LABEL(benchmark_observers_ref) = benchmark_observers;\
+		BENCHMARK_GENERATE_LABEL(benchmark_observers_length) = sizeof(benchmark_observers)/sizeof(std::reference_wrapper<benchmark::Observer>);\
 	}\
-	benchmark::benchmark_duration = std::chrono::high_resolution_clock::duration(0);\
-   	for (benchmark::current_run = 0; benchmark::current_run < runs; benchmark::current_run++) {\
-		for (auto o: benchmark::observers) {\
-			o->notifyRunBegun();\
-		}\
-		benchmark::run_begin = std::chrono::high_resolution_clock::now();
+	for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
+		BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyBenchmarkBegun(title, runs);\
+	}\
+	goto BENCHMARK_GENERATE_LABEL(benchmark_begin_execution);\
+	while(true) \
+		if (true) { \
+			for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
+				BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyBenchmarkEnded();\
+			}\
+			break;\
+		} else\
+			BENCHMARK_GENERATE_LABEL(benchmark_begin_execution): \
+				for(benchmark::benchmark_state benchmark_state {\
+					0,\
+					BENCHMARK_EXECUTE_RUN\
+				}; ; )\
+\
+					if(benchmark_state.next_action == BENCHMARK_EXECUTE_RUN) {\
+						for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
+							BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyRunBegun();\
+						}\
+						benchmark_state.next_action = BENCHMARK_EVALUATE_RUN;\
+						goto BENCHMARK_GENERATE_LABEL(benchmark_block_begin);\
+					}\
+\
+					else if (benchmark_state.next_action == BENCHMARK_EVALUATE_RUN) {\
+						{\
+							using namespace benchmark;\
+							for (auto& observed_variable : benchmark_variables_to_observe) {\
+								observed_variable.get().update_value();\
+							}\
+						}\
+						for (size_t o = 0; o < BENCHMARK_GENERATE_LABEL(benchmark_observers_length); o++) {\
+							BENCHMARK_GENERATE_LABEL(benchmark_observers_ref)[o].get().notifyRunEnded();\
+						}\
+						if (++benchmark_state.current_run == runs)\
+							break;\
+						benchmark_state.next_action = BENCHMARK_EXECUTE_RUN;\
+\
+					} else\
+						BENCHMARK_GENERATE_LABEL(benchmark_block_begin):
 
-#define end_benchmark \
-		benchmark::run_duration = std::chrono::high_resolution_clock::now() - benchmark::run_begin;\
-		benchmark::benchmark_duration += benchmark::run_duration;\
-		for (auto o: benchmark::observers) {\
-			o->notifyRunEnded();\
-		}\
-	}\
-	for (auto o: benchmark::observers) {\
-		o->notifyBenchmarkEnded();\
+#define register_observers(...) \
+	std::list<std::reference_wrapper<benchmark::observable_variable_interface>> benchmark_variables_to_observe;\
+	benchmark::observer_list benchmark_observers = {__VA_ARGS__};\
+	for (size_t i = 0; i < sizeof(benchmark_observers)/sizeof(std::reference_wrapper<benchmark::Observer>); i++) {\
+		benchmark_observers[i].get().set_variables_to_observe(&benchmark_variables_to_observe);\
 	}
+
+#define BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_type, variable, observable_variable_label) \
+	{\
+		using namespace benchmark;\
+		static_assert(sizeof(benchmark_observers) > 0, "cannot observe variables before registering observers");\
+	}\
+	benchmark::observable_type<decltype(variable)> observable_variable_label(#observable_variable_label, variable);\
+	benchmark_variables_to_observe.emplace_back(observable_variable_label);
+
+
+#define observe(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable, variable, observable_variable_label)
+#define observe_average(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable_average, variable, observable_variable_label)
+#define observe_minimum(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable_minimum, variable, observable_variable_label)
+#define observe_maximum(variable, observable_variable_label) BENCHMARK_DECLARE_NEW_OBSERVABLE(observable_variable_maximum, variable, observable_variable_label)
+
 
 namespace benchmark {
-	extern std::list<Observer*> observers;
-	extern unsigned current_run;
-	extern std::chrono::high_resolution_clock::time_point run_begin;
-	extern std::chrono::high_resolution_clock::duration run_duration;
-	extern std::chrono::high_resolution_clock::duration benchmark_duration;
+	typedef std::reference_wrapper<Observer> observer_list[];
 
-	void register_observer(Observer *Observer);
-	void delete_observers(void);
+	struct benchmark_state {
+		unsigned current_run;
+		unsigned next_action;
+	};
 
-	template<typename T>
-	void observe_variable(const std::string &variable_label, const T& variable, unsigned observation_mode=observation_mode::CURRENT_VALUE) {
-		for (auto o : observers) {
-			o->observe_variable(variable_label, variable, observation_mode);
-		}
-	}
+	// dummies for benchmarks without observers
+	observer_list benchmark_observers = {};
+	std::list<std::reference_wrapper<benchmark::observable_variable_interface>> benchmark_variables_to_observe{};\
 
+	// dummy for checking observer registration
+	void registered_observers();
 }
+
