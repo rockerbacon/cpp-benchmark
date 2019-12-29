@@ -1,6 +1,7 @@
 #include "observer.h"
 #include <sstream>
 #include <iostream>
+#include <chrono>
 
 #define SAVE_CURSOR_POSITION "\033[s"
 #define MOVE_CURSOR_TO_SAVED_POSITION "\033[u"
