@@ -1,5 +1,5 @@
-#include <benchmark.h>
 #include <stopwatch/stopwatch.h>
+#include <benchmark.h>
 #include <random>
 #include <thread>
 #include <iostream>
