@@ -2,7 +2,7 @@
 #include <benchmark.h>
 #include <chrono>
 
-begin_tests {
+tests {
 	test_suite("when executing a single benchmark") {
 		test_case("benchmark should execute the correct number of runs") {
 			unsigned number_of_runs = 10;
@@ -20,7 +20,7 @@ begin_tests {
 			auto benchmark_begin = std::chrono::high_resolution_clock::now();
 			benchmark("test overhead", runs) {}
 			auto benchmark_overhead = (std::chrono::high_resolution_clock::now() - benchmark_begin)/runs;
-			assert(benchmark_overhead, <, 500ns);
+			assert((benchmark_overhead < 500ns), ==, true);
 		};
 	}
 
@@ -42,4 +42,4 @@ begin_tests {
 			assert(benchmark2_runs, ==, benchmark2_number_of_runs);
 		};
 	}
-} end_tests;
+};

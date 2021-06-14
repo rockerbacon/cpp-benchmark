@@ -3,7 +3,7 @@
 
 using namespace benchmark;
 
-begin_tests {
+tests {
 	test_suite("when observing a variable's current value") {
 		test_case("observable variable should hold the correct label") {
 			int x = 10;
@@ -141,5 +141,5 @@ begin_tests {
 			assert(maximum_x.get_value_as_string(), ==, std::to_string(x));
 		};
 	}
-} end_tests;
+};
 

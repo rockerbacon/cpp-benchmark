@@ -11,7 +11,7 @@ bool compare_observable_variables(const benchmark::observable_variable_interface
 	return a.get_label() < b.get_label();
 }
 
-begin_tests {
+tests {
 	test_suite("when declaring variables to be observed") {
 		test_case("all observers should add variables to their observation list") {
 			observer_mock observer1, observer2;
@@ -123,5 +123,5 @@ begin_tests {
 			assert(variable_being_observed.number_of_updates, ==, number_of_runs);
 		};
 	};
-} end_tests;
+};
 

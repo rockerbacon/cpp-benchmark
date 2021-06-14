@@ -3,7 +3,7 @@
 
 #include "observer_mock.h"
 
-begin_tests {
+tests {
 	test_suite("when executing a single benchmark") {
 		test_case("benchmark information should be correctly reported to all observers") {
 			observer_mock observer1;
@@ -171,4 +171,4 @@ begin_tests {
 			assert(observer2.run_ended_notifications, ==, benchmark1_number_of_runs+benchmark2_number_of_runs);
 		};
 	};
-} end_tests;
+};
